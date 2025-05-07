@@ -45,3 +45,9 @@ func (s *GameServiceImpl) FieldValidation(game *app.CurrentGame) (bool, error) {
 func (s *GameServiceImpl) GameIsOver(game *app.CurrentGame) bool  {
 	return s.core.GameIsOver(game)
 }
+
+func (s *GameServiceImpl) NewGame(Computer bool) (*app.CurrentGame) {
+	game := s.core.NewGame(Computer)
+	s.repo.SaveGame(game)
+	return game
+}

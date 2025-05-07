@@ -5,9 +5,19 @@ import "github.com/google/uuid"
 
 type Field [][]int
 
+type State int
+const (
+	Wait = 0
+	Move = 1
+	Draw = 2
+	Win = 3
+)
+
 type CurrentGame struct{
 	Field Field	
 	UUID uuid.UUID
+	Status State	
+	Computer bool
 }
 
 type User struct{

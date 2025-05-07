@@ -32,11 +32,11 @@ func (s *PostgresGameRepo)SaveGame(currentgame *app.CurrentGame) error {
 	}
 
 	query := `
-		INSERT INTO games (id, field)
-		VALUES ($1, $2)
+		INSERT INTO games (id, field, status, vs_computer)
+		VALUES ($1, $2, $3, $4)
 		ON CONFLICT (id) DO UPDATE SET field = EXCLUDED.field
 	`
-	_, err = s.conn.Exec(context_, query, entity.ID, string(fieldJSON))
+	_, err = s.conn.Exec(context_, query, entity.ID, string(fieldJSON), entity.Status, entity.Computer)
 	return err
 }
 
@@ -44,13 +44,13 @@ func (s *PostgresGameRepo) LoadGame(ID uuid.UUID) (*app.CurrentGame, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	query := `SELECT id, field FROM games WHERE id = $1`
+	query := `SELECT id, field, status, vs_computer FROM games WHERE id = $1`
 	row := s.conn.QueryRow(ctx, query, ID)
 
 	var entity GameEntity
 	var fieldJSON string
 
-	err := row.Scan(&entity.ID, &fieldJSON)
+	err := row.Scan(&entity.ID, &fieldJSON, &entity.Status, &entity.Computer)
 	if err != nil {
 		return nil, err // можно уточнить: pgx.ErrNoRows → "игра не найдена"
 	}
@@ -64,7 +64,7 @@ func (s *PostgresGameRepo) LoadGame(ID uuid.UUID) (*app.CurrentGame, error) {
 
 
 func ConnectDB() *pgx.Conn{
-	connStr := "postgres://postgres:161902@localhost:5432/TicTacToe"
+	connStr := "postgres://postgres:161902@localhost:5432/TicTacToe" // спрятать бы куда?
 	context_, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	conn, err := pgx.Connect(context_, connStr)

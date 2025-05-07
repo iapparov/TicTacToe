@@ -9,12 +9,11 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/google/uuid"
 )
 
 type GameHandler struct {
-	service app.GameService
-	repo datasource.GameRepository
+	service app.GameService //интерфейс
+	repo datasource.GameRepository //интерфейс
 }
 
 func NewGameHandler(service app.GameService, repo datasource.GameRepository) *GameHandler {
@@ -73,7 +72,7 @@ func (h *GameHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if isgameover {
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Game is over!"))
+		w.Write([]byte("Game is over!\n"))
 		return
 	}
 
@@ -95,16 +94,15 @@ func (h *GameHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // POST /game — создать новую игру
 func (h *GameHandler) CreateGame(w http.ResponseWriter, r *http.Request) {
-    newID := uuid.New()
-    newGame := &app.CurrentGame{
-        UUID:    newID,
-        Field: [][]int{
-            {0, 0, 0},
-            {0, 0, 0},
-            {0, 0, 0},
-        },
-    }
-	h.repo.SaveGame(newGame)
+	type vs_computer struct{
+		Computer bool `json:"vs_computer"`
+	}
+	var req vs_computer
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		req.Computer = true
+	}
+
+	newGame := h.service.NewGame(req.Computer)
 	
 
     dto := ToWeb(newGame) // маппер domain -> web

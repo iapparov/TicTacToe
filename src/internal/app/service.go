@@ -3,6 +3,7 @@ package app
 import (
 	"errors"
 	"math"
+	"github.com/google/uuid"
 )
 
 type TicTacToeService struct{}
@@ -12,6 +13,21 @@ const (
 	Cross = 1 // X
 	Naught = 2 // O
 )
+
+func (s *TicTacToeService) NewGame(Computer bool) (*CurrentGame){
+	newID := uuid.New()
+    newGame := &CurrentGame{
+        UUID:    newID,
+        Field: [][]int{
+            {0, 0, 0},
+            {0, 0, 0},
+            {0, 0, 0},
+        },
+		Status: Wait,
+		Computer: Computer,
+    }
+	return newGame
+}
 
 func (s *TicTacToeService) FieldValidation(game *CurrentGame) (bool, error){
 	if game == nil || len(game.Field) != 3{
@@ -45,6 +61,11 @@ func (s *TicTacToeService) FieldValidation(game *CurrentGame) (bool, error){
 }
 
 func (s *TicTacToeService) NextMove(game *CurrentGame) (*CurrentGame, error){
+	
+	if !game.Computer{
+		return game, nil
+	}
+
 	bestScore := math.Inf(-1) // Ищем максимальный score, изначально минус бесконечность
 	var moveX, moveY int      // Лучшая найденная позиция
 
