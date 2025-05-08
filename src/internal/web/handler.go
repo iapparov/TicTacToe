@@ -110,12 +110,3 @@ func (h *GameHandler) CreateGame(w http.ResponseWriter, r *http.Request) {
     json.NewEncoder(w).Encode(dto)
 }
 
-// curl -s -X POST http://localhost:8080/game/d85f4411-3be5-4f53-b9db-6cc6a53225b0 \
-// -H "Content-Type: application/json" \
-// -d '{"id":"d85f4411-3be5-4f53-b9db-6cc6a53225b0", "field":[[0,0,0],[0,0,0],[0,0,0]]}'
-
-// curl -X POST http://localhost:8080/game
-
-
-// curl -X POST http://localhost:8080/game \
-// -H "Cookie: user_id=550e8400-e29b-41d4-a716-446655440000"

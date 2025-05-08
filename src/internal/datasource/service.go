@@ -51,3 +51,5 @@ func (s *GameServiceImpl) NewGame(Computer bool) (*app.CurrentGame) {
 	s.repo.SaveGame(game)
 	return game
 }
+
+//Добавить сохранение юзер id в модель

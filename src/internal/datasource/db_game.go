@@ -8,6 +8,7 @@ import (
 	"time"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"os"
 )
 
 type PostgresGameRepo struct {
@@ -64,7 +65,12 @@ func (s *PostgresGameRepo) LoadGame(ID uuid.UUID) (*app.CurrentGame, error) {
 
 
 func ConnectDB() *pgx.Conn{
-	connStr := "postgres://postgres:161902@localhost:5432/TicTacToe" // спрятать бы куда?
+	
+
+	connStr := os.Getenv("DB_URL")
+	if connStr == "" {
+		log.Fatal("DB_URL is not set")
+	}
 	context_, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	conn, err := pgx.Connect(context_, connStr)

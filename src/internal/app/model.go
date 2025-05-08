@@ -18,6 +18,8 @@ type CurrentGame struct{
 	UUID uuid.UUID
 	Status State	
 	Computer bool
+	PlayerX uuid.UUID
+	PlayerO uuid.UUID
 }
 
 type User struct{

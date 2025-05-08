@@ -10,6 +10,8 @@ func ToEntity(CurrentGame *app.CurrentGame) *GameEntity{
 		Field: CurrentGame.Field,
 		Status: CurrentGame.Status,
 		Computer: CurrentGame.Computer,
+		PlayerX: CurrentGame.PlayerX,
+		PlayerO: CurrentGame.PlayerO,
 	}
 }
 
@@ -19,5 +21,7 @@ func FromEntity(Entity *GameEntity) *app.CurrentGame{
 		UUID: Entity.ID,
 		Status: Entity.Status,
 		Computer: Entity.Computer,
+		PlayerX: Entity.PlayerX,
+		PlayerO: Entity.PlayerO,
 	}
 }

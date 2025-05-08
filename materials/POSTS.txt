@@ -17,3 +17,17 @@ curl -s -X POST http://localhost:8080/game/e0fbe927-1865-4526-87ca-3333b872602c 
 -H "Content-Type: application/json" \
 -d '{"id":"e0fbe927-1865-4526-87ca-3333b872602c", "field":[[2,1,2],[0,1,0],[0,1,0]]}'
 
+// connStr := "postgres://postgres:161902@localhost:5432/TicTacToe" // спрятать бы куда?
+
+// connStr := "postgres://postgres:161902@localhost:5432/TicTacToe" // спрятать бы куда?
+export DB_URL=postgres://postgres:161902@localhost:5432/TicTacToe
+
+// curl -s -X POST http://localhost:8080/game/d85f4411-3be5-4f53-b9db-6cc6a53225b0 \
+// -H "Content-Type: application/json" \
+// -d '{"id":"d85f4411-3be5-4f53-b9db-6cc6a53225b0", "field":[[0,0,0],[0,0,0],[0,0,0]]}'
+
+// curl -X POST http://localhost:8080/game
+
+
+// curl -X POST http://localhost:8080/game \
+// -H "Cookie: user_id=550e8400-e29b-41d4-a716-446655440000"

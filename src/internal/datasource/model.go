@@ -11,4 +11,6 @@ type GameEntity struct{
 	ID uuid.UUID `db:"Id"`
 	Status app.State `db:"Status"`
 	Computer bool `db:"Computer"`
+	PlayerX uuid.UUID `db:"playerx"`
+	PlayerO uuid.UUID `db:"playero"`
 }
