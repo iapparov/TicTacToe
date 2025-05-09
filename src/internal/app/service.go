@@ -2,7 +2,9 @@ package app
 
 import (
 	"errors"
+	"log"
 	"math"
+
 	"github.com/google/uuid"
 )
 
@@ -14,8 +16,12 @@ const (
 	Naught = 2 // O
 )
 
-func (s *TicTacToeService) NewGame(Computer bool) (*CurrentGame){
+func (s *TicTacToeService) NewGame(Computer bool, Uuid string) (*CurrentGame){
 	newID := uuid.New()
+	px, err := uuid.Parse(Uuid)
+	if err != nil{
+		log.Fatal("Bad uuid for player X")
+	}
     newGame := &CurrentGame{
         UUID:    newID,
         Field: [][]int{
@@ -25,8 +31,20 @@ func (s *TicTacToeService) NewGame(Computer bool) (*CurrentGame){
         },
 		Status: Wait,
 		Computer: Computer,
+		PlayerX: px,
+		PlayerO: uuid.Nil,
     }
 	return newGame
+}
+
+func (s *TicTacToeService) Connect(game *CurrentGame, Uuidgame string, Uuidplayero string) (*CurrentGame){
+	tmp, err := uuid.Parse(Uuidplayero)
+	if err != nil {
+		log.Fatalf("Bad PlayerO uuid")
+		return game
+	}
+	game.PlayerO = tmp
+	return game
 }
 
 func (s *TicTacToeService) FieldValidation(game *CurrentGame) (bool, error){
@@ -63,6 +81,15 @@ func (s *TicTacToeService) FieldValidation(game *CurrentGame) (bool, error){
 func (s *TicTacToeService) NextMove(game *CurrentGame) (*CurrentGame, error){
 	
 	if !game.Computer{
+		if game.Status == Wait {
+			game.Status = MoveX
+		}
+		if game.Status == MoveX{
+			game.Status = MoveO
+		}
+		if game.Status == MoveO {
+			game.Status = MoveX
+		}
 		return game, nil
 	}
 
@@ -95,6 +122,7 @@ func (s *TicTacToeService) NextMove(game *CurrentGame) (*CurrentGame, error){
 
 	// Делаем лучший найденный ход
 	game.Field[moveX][moveY] = Naught
+	game.Status = MoveX
 	return game, nil
 }
 
@@ -157,6 +185,14 @@ func minimax(field Field, depth int, isMaximizing bool, game *CurrentGame) float
 
 func (s *TicTacToeService) GameIsOver(game *CurrentGame) bool{
 	winner := checkwinner(game)
+
+	if winner == Cross{
+		game.Status = WinX
+	} else if winner == Naught{
+		game.Status = WinO
+	} else if winner != 0 {
+		game.Status = Draw
+	}
 
 	if winner != 0{
 		return true

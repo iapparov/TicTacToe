@@ -32,6 +32,29 @@ func (h *GameHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if strings.HasPrefix(r.URL.Path, "/connect/"){
+		h.Connect(w,r)
+		return
+	}
+
+	if r.URL.Path == "/getgames"{
+		h.GetGames(w,r)
+		return
+	}
+
+	h.PlayGame(w,r)
+}
+
+func (h *GameHandler) GetGames(w http.ResponseWriter, r *http.Request){
+	games := h.repo.GetGames()
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(games); err != nil {
+		http.Error(w, "Failed to encode games", http.StatusInternalServerError)
+		return
+	}
+}	
+
+func (h *GameHandler) PlayGame(w http.ResponseWriter, r *http.Request){
 	// Извлечение ID из URL: /game/{id}
 	id := strings.TrimPrefix(r.URL.Path, "/game/")
 	if id == "" {
@@ -101,12 +124,34 @@ func (h *GameHandler) CreateGame(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		req.Computer = true
 	}
-
-	newGame := h.service.NewGame(req.Computer)
-	
+	cookie, err := r.Cookie("user_id")
+	if err != nil{
+		return
+	}
+	newGame := h.service.NewGame(req.Computer, cookie.Value)
 
     dto := ToWeb(newGame) // маппер domain -> web
     w.Header().Set("Content-Type", "application/json")
     json.NewEncoder(w).Encode(dto)
 }
 
+// POST /game — создать новую игру
+func (h *GameHandler) Connect(w http.ResponseWriter, r *http.Request) {
+
+	id := strings.TrimPrefix(r.URL.Path, "/connect/")
+	if id == "" {
+		http.Error(w, "Game ID is required", http.StatusBadRequest)
+		return
+	}
+	cookie, err := r.Cookie("user_id")
+	if err != nil{
+		http.Error(w, "User ID is required", http.StatusBadRequest)
+		return
+	}
+	var game *app.CurrentGame
+	game = h.service.Connect(game, id, cookie.Value)
+
+    dto := ToWeb(game) // маппер domain -> web
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(dto)
+}

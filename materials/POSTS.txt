@@ -1,26 +1,34 @@
 
-curl -i -X POST http://localhost:8080/login \
+curl -i -X POST http://localhost:8080/register \
   -H "Content-Type: application/json" \
-  -d '{"login": "Emil", "password": "123"}'
+  -d '{"login": "Ivan", "password": "123"}'
 
-Ivan 0cdc971b-34e9-4369-8a96-6d889028f975
-Emil 208e317c-1524-46d6-9348-455f094022ef
+Ivan 4929e317-7e1e-4799-86d2-8848149ba7f5
+Emil 9e74ffe9-c435-48c0-b922-bd80d9e368bb
 
-Game e0fbe927-1865-4526-87ca-3333b872602c
+Game 6fe29090-b1de-4231-b481-b000fd0edccd
 
 
-curl -X POST http://localhost:8080/game -H "Cookie: user_id=0cdc971b-34e9-4369-8a96-6d889028f975" \
+curl -X POST http://localhost:8080/connect/6fe29090-b1de-4231-b481-b000fd0edccd -H "Cookie: user_id=9e74ffe9-c435-48c0-b922-bd80d9e368bb" 
+
+curl -X POST http://localhost:8080/game -H "Cookie: user_id=4929e317-7e1e-4799-86d2-8848149ba7f5" \
 -d '{"vs_computer": false}'
 
-curl -s -X POST http://localhost:8080/game/e0fbe927-1865-4526-87ca-3333b872602c \
--H "Cookie: user_id=0cdc971b-34e9-4369-8a96-6d889028f975" \
+curl -s -X POST http://localhost:8080/game/6fe29090-b1de-4231-b481-b000fd0edccd \
+-H "Cookie: user_id=9e74ffe9-c435-48c0-b922-bd80d9e368bb" \
 -H "Content-Type: application/json" \
--d '{"id":"e0fbe927-1865-4526-87ca-3333b872602c", "field":[[2,1,2],[0,1,0],[0,1,0]]}'
+-d '{"id":"6fe29090-b1de-4231-b481-b000fd0edccd", "field":[[0,0,0],[0,1,0],[0,0,0]]}'
 
 // connStr := "postgres://postgres:161902@localhost:5432/TicTacToe" // спрятать бы куда?
+
+
+
 
 // connStr := "postgres://postgres:161902@localhost:5432/TicTacToe" // спрятать бы куда?
 export DB_URL=postgres://postgres:161902@localhost:5432/TicTacToe
+
+
+
 
 // curl -s -X POST http://localhost:8080/game/d85f4411-3be5-4f53-b9db-6cc6a53225b0 \
 // -H "Content-Type: application/json" \

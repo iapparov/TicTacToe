@@ -6,7 +6,8 @@ type GameService interface {
 	NextMove(game *CurrentGame) (*CurrentGame, error)
 	FieldValidation(game *CurrentGame) (bool, error)
 	GameIsOver(game *CurrentGame) bool
-	NewGame(Computer bool) (*CurrentGame)
+	NewGame(Computer bool, uuid string) (*CurrentGame)
+	Connect(game *CurrentGame, Uuidgame string, Uuidplayero string) (*CurrentGame)
 }
 
 type UserService interface {
