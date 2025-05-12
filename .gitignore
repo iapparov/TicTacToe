@@ -133,3 +133,5 @@ dkms.conf
 
 # Text files
 *.txt
+/materials/POSTS.txt
+/materials/todelete.sql

@@ -9,4 +9,5 @@ type GameRepository interface{
 	SaveGame(currentgame *app.CurrentGame) error
 	LoadGame(ID uuid.UUID) (*app.CurrentGame, error)
 	GetGames() []string
+	CurrentGame(Userid string) []string
 }

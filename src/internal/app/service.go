@@ -44,6 +44,7 @@ func (s *TicTacToeService) Connect(game *CurrentGame, Uuidgame string, Uuidplaye
 		return game
 	}
 	game.PlayerO = tmp
+	game.Status = MoveX
 	return game
 }
 
@@ -83,14 +84,16 @@ func (s *TicTacToeService) NextMove(game *CurrentGame) (*CurrentGame, error){
 	if !game.Computer{
 		if game.Status == Wait {
 			game.Status = MoveX
+			return game, nil
 		}
 		if game.Status == MoveX{
 			game.Status = MoveO
+			return game, nil
 		}
 		if game.Status == MoveO {
 			game.Status = MoveX
+			return game, nil
 		}
-		return game, nil
 	}
 
 	bestScore := math.Inf(-1) // Ищем максимальный score, изначально минус бесконечность

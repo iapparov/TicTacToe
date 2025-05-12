@@ -19,6 +19,38 @@ func NewPostgresGameRepo(conn *pgx.Conn) *PostgresGameRepo {
 	return &PostgresGameRepo{conn: conn}
 }
 
+func (s *PostgresGameRepo) CurrentGame(Userid string) []string{
+	context_, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	
+	query := `
+	SELECT id 
+	From Games
+	Where playerx = $1 OR playero = $1
+	`
+
+	rows, err := s.conn.Query(context_, query, Userid)
+    if err != nil {
+		log.Print("failed to execute query: %w", err)
+        return nil
+    }
+    defer rows.Close()
+	games := make([]string, 0)
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err!=nil{
+			return nil
+		}
+		games = append(games, id)
+	}
+	if rows.Err() != nil {
+		return nil
+	}
+
+	return games
+}
+
 func (s *PostgresGameRepo) GetGames() []string{
 	context_, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -69,9 +101,17 @@ func (s *PostgresGameRepo) SaveGame(currentgame *app.CurrentGame) error {
 		field = EXCLUDED.field,
 		status = EXCLUDED.status,
 		vs_computer = EXCLUDED.vs_computer,
-		playerx = EXCLUDED.playerx,
-		playero = EXCLUDED.playero
-`
+		playerx = CASE 
+					WHEN games.playerx IS NULL OR games.playerx = '00000000-0000-0000-0000-000000000000' 
+					THEN EXCLUDED.playerx 
+					ELSE games.playerx 
+				  END,
+		playero = CASE 
+					WHEN games.playero IS NULL OR games.playero = '00000000-0000-0000-0000-000000000000' 
+					THEN EXCLUDED.playero 
+					ELSE games.playero 
+				  END
+	`
 	_, err = s.conn.Exec(context_, query, entity.ID, string(fieldJSON), entity.Status, entity.Computer, entity.PlayerX, entity.PlayerO)
 	return err
 }
