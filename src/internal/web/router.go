@@ -14,4 +14,8 @@ func RegisterRoutes(mux *http.ServeMux, gameHandler *GameHandler, userHandler *U
 	}
 	mux.Handle("/game/", protected)
 	mux.Handle("/game", protected)
+	mux.Handle("/connect/", protected)
+	mux.Handle("/getgames", protected)
+	mux.Handle("/currentgame", protected)
+	mux.Handle("/userinfo", protected)
 }

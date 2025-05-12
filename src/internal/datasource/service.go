@@ -2,6 +2,7 @@ package datasource
 
 import (
 	"krestikinoliki/internal/app"
+
 	"github.com/google/uuid"
 )
 
@@ -46,8 +47,22 @@ func (s *GameServiceImpl) GameIsOver(game *app.CurrentGame) bool  {
 	return s.core.GameIsOver(game)
 }
 
-func (s *GameServiceImpl) NewGame(Computer bool) (*app.CurrentGame) {
-	game := s.core.NewGame(Computer)
+func (s *GameServiceImpl) Connect(game *app.CurrentGame, Uuidgame string, Uuidplayero string) (*app.CurrentGame){
+	tmp, err := uuid.Parse(Uuidgame)
+	if err != nil {
+		return game
+	}
+	game, err = s.repo.LoadGame(tmp)
+	if err !=nil {
+		return nil
+	}
+	game = s.core.Connect(game, Uuidgame, Uuidplayero)
+	s.repo.SaveGame(game)
+	return game
+}
+
+func (s *GameServiceImpl) NewGame(Computer bool, Uuid string) (*app.CurrentGame) {
+	game := s.core.NewGame(Computer, Uuid)
 	s.repo.SaveGame(game)
 	return game
 }

@@ -51,7 +51,7 @@ func (s *PostgresUserRepo) FindByLogin(login string) (app.User, error){
 	return user, nil
 }
 
-func (s *PostgresUserRepo) FindByUUID(uuid string) (bool) {
+func (s *PostgresUserRepo) FindByUUID(uuid string) (bool, []string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -63,11 +63,14 @@ func (s *PostgresUserRepo) FindByUUID(uuid string) (bool) {
 	err := s.conn.QueryRow(ctx, query, uuid).Scan(&user.UUID, &user.Login, &user.Password)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return false
+			return false, nil
 		}
-		return false
+		return false, nil
 	}
+	games := make([]string, 0)
+	games = append(games, user.Login)
+	games = append(games, user.Password)
 
 
-	return true
+	return true, games
 }

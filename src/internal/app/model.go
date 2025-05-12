@@ -8,9 +8,11 @@ type Field [][]int
 type State int
 const (
 	Wait = 0
-	Move = 1
-	Draw = 2
-	Win = 3
+	MoveX = 1
+	MoveO = 2
+	Draw = 3
+	WinX = 4
+	WinO = 5
 )
 
 type CurrentGame struct{

@@ -21,8 +21,11 @@ func (ua *UserAuthenticator) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
-
-	if !ua.Repo.FindByUUID(cookie.Value) {
+	// Проверяем, существует ли пользователь с данным UUID
+	// Если нет, то возвращаем ошибку 401 Unauthorized
+	// Если да, то продолжаем выполнение следующего обработчика
+	flag, _ := ua.Repo.FindByUUID(cookie.Value)
+	if !flag {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}

@@ -6,7 +6,8 @@ type GameService interface {
 	NextMove(game *CurrentGame) (*CurrentGame, error)
 	FieldValidation(game *CurrentGame) (bool, error)
 	GameIsOver(game *CurrentGame) bool
-	NewGame(Computer bool) (*CurrentGame)
+	NewGame(Computer bool, uuid string) (*CurrentGame)
+	Connect(game *CurrentGame, Uuidgame string, Uuidplayero string) (*CurrentGame)
 }
 
 type UserService interface {
@@ -17,5 +18,5 @@ type UserService interface {
 type UserRepository interface {
 	Save(user User) error
 	FindByLogin(login string) (User, error)
-	FindByUUID(uuid string) (bool)
+	FindByUUID(uuid string) (bool, []string)
 }
