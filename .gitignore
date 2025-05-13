@@ -135,3 +135,8 @@ dkms.conf
 *.txt
 /materials/POSTS.txt
 /materials/todelete.sql
+/.vscode/
+/data-samples/
+/datasets/
+/misc/
+license
