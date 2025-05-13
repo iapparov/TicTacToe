@@ -161,8 +161,11 @@ func (h *GameHandler) PlayGame(w http.ResponseWriter, r *http.Request){
 		return
 	}
 	game.Status = LoadGame.Status
+	game.Computer = LoadGame.Computer
 	// Выполняем ход
 	updatedGame, err := h.service.NextMove(game)
+
+
 
 	h.repo.SaveGame(game)
 	if err != nil {
@@ -176,6 +179,14 @@ func (h *GameHandler) PlayGame(w http.ResponseWriter, r *http.Request){
 	// Отправляем JSON обратно
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(responseDTO)
+
+	isgameover = h.service.GameIsOver(game)
+	if isgameover {
+		w.Header().Set("Content-Type", "text/plain")
+		w.Write([]byte("Game is over!\n"))
+		h.repo.SaveGame(game)
+		return
+	}
 }
 
 // POST /game — создать новую игру
