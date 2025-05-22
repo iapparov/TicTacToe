@@ -3,11 +3,13 @@ package web
 import (
 	"krestikinoliki/internal/app"
 	"net/http"
+	"strings"
 )
 
 type UserAuthenticator struct {
 	Next http.Handler
 	Repo app.UserRepository
+	JwtProvider *app.JwtProvider
 }
 
 func (ua *UserAuthenticator) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -16,19 +18,19 @@ func (ua *UserAuthenticator) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cookie, err := r.Cookie("user_id")
-	if err != nil || cookie.Value == "" {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-	// Проверяем, существует ли пользователь с данным UUID
-	// Если нет, то возвращаем ошибку 401 Unauthorized
-	// Если да, то продолжаем выполнение следующего обработчика
-	flag, _ := ua.Repo.FindByUUID(cookie.Value)
-	if !flag {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
+    authHeader := r.Header.Get("Authorization")
+    if !strings.HasPrefix(authHeader, "Bearer ") {
+        http.Error(w, "Unauthorized", http.StatusUnauthorized)
+        return
+    }
+	
+    token := strings.TrimPrefix(authHeader, "Bearer ")
+    id, err := ua.JwtProvider.ValidateAccessToken(token)
+	flag, _ := ua.Repo.FindByUUID(id.String())
+    if err != nil || !flag{
+        http.Error(w, "Unauthorized", http.StatusUnauthorized)
+        return
+    }
 
 	// todo: можно проверить uuid.Parse(cookie.Value), если нужно
 	ua.Next.ServeHTTP(w, r)

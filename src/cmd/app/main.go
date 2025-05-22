@@ -18,7 +18,7 @@ func main() {
 			datasource.NewPostgresGameRepo, //БД + Игра
 			datasource.NewPostgresUserRepo, //БД + ЮЗЕР
 			app.NewUserServiceImpl, // Юзерсервис
-		
+			app.NewJwtProvider, // JWT провайдер
 			// Интерфейс GameRepository
 			func(repo *datasource.PostgresGameRepo) datasource.GameRepository {
 				return repo
