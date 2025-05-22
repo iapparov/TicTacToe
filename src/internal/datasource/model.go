@@ -13,4 +13,5 @@ type GameEntity struct{
 	Computer bool `db:"Computer"`
 	PlayerX uuid.UUID `db:"playerx"`
 	PlayerO uuid.UUID `db:"playero"`
+	CreatedAt int64 `db:"createdat"`
 }

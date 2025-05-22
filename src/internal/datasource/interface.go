@@ -10,4 +10,6 @@ type GameRepository interface{
 	LoadGame(ID uuid.UUID) (*app.CurrentGame, error)
 	GetGames() []string
 	CurrentGame(Userid string) []string
+	GetEndedGames(uuid string) ([]string)
+	GetLeaderBoard(count int) ([]app.LeaderBoard, error)
 }

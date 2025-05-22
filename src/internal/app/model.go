@@ -22,6 +22,7 @@ type CurrentGame struct{
 	Computer bool
 	PlayerX uuid.UUID
 	PlayerO uuid.UUID
+	CreatedAt int64
 }
 
 type User struct{
@@ -33,4 +34,10 @@ type User struct{
 type SignUpRequest struct{
 	Login string
 	Password string
+}
+
+type LeaderBoard struct{
+	UUID uuid.UUID
+	Login string
+	Win float64
 }

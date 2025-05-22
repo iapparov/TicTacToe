@@ -12,6 +12,7 @@ func ToEntity(CurrentGame *app.CurrentGame) *GameEntity{
 		Computer: CurrentGame.Computer,
 		PlayerX: CurrentGame.PlayerX,
 		PlayerO: CurrentGame.PlayerO,
+		CreatedAt: CurrentGame.CreatedAt,
 	}
 }
 
@@ -23,5 +24,6 @@ func FromEntity(Entity *GameEntity) *app.CurrentGame{
 		Computer: Entity.Computer,
 		PlayerX: Entity.PlayerX,
 		PlayerO: Entity.PlayerO,
+		CreatedAt: Entity.CreatedAt,
 	}
 }

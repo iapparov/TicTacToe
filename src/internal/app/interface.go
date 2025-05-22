@@ -1,6 +1,5 @@
 package app
 
-import "github.com/google/uuid"
 
 type GameService interface {
 	NextMove(game *CurrentGame) (*CurrentGame, error)
@@ -12,7 +11,10 @@ type GameService interface {
 
 type UserService interface {
 	RegisterUser(req SignUpRequest) (User, error)
-	Authenticate(login, password string) (uuid.UUID, error)
+	LoginJwt(req JwtRequest, jwt JwtProvider) (JwtResponse, error)
+	RefreshAccessToken(req RefreshJwtRequest) (JwtResponse, error)
+	RefreshRefreshToken(req RefreshJwtRequest, oldAccessToken string) (JwtResponse, error)
+	// Authenticate(login, password string) (uuid.UUID, error)
 }
 
 type UserRepository interface {
