@@ -245,6 +245,17 @@ export DB_URL=postgres://postgres:password@localhost:5432/TicTacToe
 
 ---
 
+
+## Настройка secretphrase для JWT
+
+Установите переменную окружения:
+
+```bash
+export JWT_ACCESS_SECRET="YOUR_JWT_SECRET"
+export JWT_REFRESH_SECRET="YOUR_JWT_SECRET"
+```
+
+---
 ## Запуск проекта
 
 ```bash

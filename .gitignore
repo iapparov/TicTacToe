@@ -74,7 +74,6 @@
 *.wav
 *.aiff
 *.aif
-*.mod
 *.it
 *.s3m
 *.xm
@@ -141,3 +140,5 @@ dkms.conf
 /misc/
 license
 task.md
+*.txt
+CHANGELOG
