@@ -1,39 +1,60 @@
 # TicTacToe API
 
 ## Описание
-Это проект API для игры "Крестики-нолики". API предоставляет функционал для создания игр, подключения игроков, выполнения ходов и проверки состояния игры. Реализовано на языке Go с использованием PostgreSQL для хранения данных.
+API для игры "Крестики-нолики" с поддержкой регистрации, JWT-авторизации, создания и ведения игр, получения лидерборда и просмотра завершённых игр. Реализовано на Go с использованием PostgreSQL.
+
 
 ---
 
 ## Структура проекта
+
 ```
 src/
 ├── cmd/
 │   └── app/
-│       └── main.go // Точка входа в приложение
+│       └── main.go                # Точка входа в приложение
 ├── internal/
 │   ├── app/
-│   │   ├── interface.go // Интерфейсы для бизнес-логики
-│   │   ├── model.go // Модели данных
-│   │   ├── service.go // Реализация бизнес-логики
-│   │   └── user_service.go // Логика работы с пользователями
+│   │   ├── game_service.go        # Бизнес-логика игры
+│   │   ├── interface.go           # Интерфейсы сервисов
+│   │   ├── jwt_models.go          # Модели для JWT
+│   │   ├── jwt_provider.go        # Провайдер JWT-токенов
+│   │   ├── model.go               # Модели приложения
+│   │   └── user_service.go        # Бизнес-логика пользователей и JWT
 │   ├── datasource/
-│   │   ├── db_game.go // Работа с таблицей игр в базе данных
-│   │   ├── db_user.go // Работа с таблицей пользователей
-│   │   ├── interface.go // Интерфейсы для работы с базой данных
-│   │   ├── mapper.go // Маппинг между сущностями базы данных и моделями
-│   │   ├── model.go // Модели базы данных
-│   │   └── service.go // Реализация сервисов для работы с базой данных
+│   │   ├── db_game.go             # Работа с таблицей игр в БД
+│   │   ├── db_user.go             # Работа с таблицей пользователей в БД
+│   │   ├── game_service.go        # Реализация сервисов для работы с играми
+│   │   ├── interface.go           # Интерфейсы репозиториев
+│   │   ├── mapper.go              # Маппинг моделей datasource <-> domain
+│   │   ├── model.go               # Модели для БД
+│   │   └── service.go             # Реализация сервисов для работы с БД
 │   ├── di/
-│   │   └── service.go // DI-контейнер для управления зависимостями
+│   │   └── service.go             # DI-контейнер и запуск HTTP-сервера
 │   └── web/
-│       ├── handler.go // HTTP-обработчики для работы с играми
-│       ├── mappers.go // Маппинг между веб-моделями и доменными моделями
-│       ├── model.go // Модели для веб-слоя
-│       ├── router.go // Регистрация маршрутов
-│       ├── user_handler.go // HTTP-обработчики для работы с пользователями
-│       └── user_midlware.go // Middleware для авторизации пользователей
+│       ├── game_handler.go        # HTTP-обработчики для игр
+│       ├── mappers.go             # Маппинг моделей web <-> domain
+│       ├── model.go               # Модели для web-слоя
+│       ├── router.go              # Регистрация маршрутов
+│       ├── user_handler.go        # HTTP-обработчики для пользователей и JWT
+│       └── user_midlware.go       # JWT middleware для авторизации
 ```
+
+
+---
+
+## Основные возможности
+
+- **Регистрация и авторизация пользователей (JWT)**
+- **Создание новой игры (против игрока или компьютера)**
+- **Подключение к игре**
+- **Выполнение хода**
+- **Получение списка всех игр пользователя**
+- **Получение списка завершённых игр пользователя**
+- **Получение лидерборда**
+- **Валидация JWT для всех защищённых эндпоинтов**
+
+---
 
 ## Основные компоненты
 
@@ -50,24 +71,26 @@ src/
 
 ### 2. `internal/app`
 
-#### a. `service.go`
+#### a. `game_service.go`
 **Описание**: Реализация бизнес-логики для игры "Крестики-нолики".
 
 **Ключевые функции**:
-- `NewGame(Computer bool, Uuid string) (*CurrentGame)`:
-  Создаёт новую игру. Если `Computer == true`, игра будет против компьютера.
-  
-- `Connect(game *CurrentGame, Uuidgame string, Uuidplayero string) (*CurrentGame)`:
-  Подключает второго игрока к игре.
+- `NewGame(Computer bool, Uuid string) (*CurrentGame)` — создание новой игры (против игрока или компьютера).
+- `Connect(game *CurrentGame, Uuidgame string, Uuidplayero string) (*CurrentGame)` — подключение второго игрока.
+- `FieldValidation(game *CurrentGame) (bool, error)` — проверка валидности игрового поля.
+- `NextMove(game *CurrentGame) (*CurrentGame, error)` — выполнение следующего хода (с поддержкой minimax для компьютера).
+- `GameIsOver(game *CurrentGame) bool` — проверка завершения игры.
 
-- `FieldValidation(game *CurrentGame) (bool, error)`:
-  Проверяет валидность игрового поля.
+#### b. `user_service.go`
+**Описание**: Бизнес-логика пользователей и JWT.
 
-- `NextMove(game *CurrentGame) (*CurrentGame, error)`:
-  Выполняет следующий ход. Если игра против компьютера, используется алгоритм `minimax`.
+**Ключевые функции**:
+- Регистрация пользователя.
+- Аутентификация и генерация JWT.
+- Обновление access/refresh токенов.
 
-- `GameIsOver(game *CurrentGame) bool`:
-  Проверяет, завершена ли игра.
+#### c. `jwt_provider.go`, `jwt_models.go`
+**Описание**: Генерация, валидация и работа с JWT-токенами.
 
 ---
 
@@ -77,80 +100,164 @@ src/
 **Описание**: Работа с таблицей `games` в базе данных.
 
 **Ключевые функции**:
-- `SaveGame(currentgame *app.CurrentGame) error`:
-  Сохраняет игру в базе данных. Использует `ON CONFLICT` для обновления существующих записей.
+- `SaveGame(currentgame *app.CurrentGame) error` — сохранение игры.
+- `LoadGame(ID uuid.UUID) (*app.CurrentGame, error)` — загрузка игры по UUID.
+- `GetGames() []string` — список всех открытых игр.
+- `CurrentGame(Userid string) []string` — список игр пользователя.
+- `GetEndedGames(uuid string) ([]string)` — список завершённых игр пользователя.
+- `GetLeaderBoard(count int) ([]app.LeaderBoard, error)` — лидерборд по соотношению побед.
 
-- `LoadGame(ID uuid.UUID) (*app.CurrentGame, error)`:
-  Загружает игру по её UUID.
+#### b. `db_user.go`
+**Описание**: Работа с таблицей пользователей.
 
-- `CurrentGame(Userid string) []string`:
-  Возвращает список игр, в которых участвует пользователь.
+**Ключевые функции**:
+- Сохранение и поиск пользователей по логину/UUID.
+
+#### c. `game_service.go`
+**Описание**: Адаптер между бизнес-логикой и репозиторием (реализация интерфейса GameService).
+
+#### d. `mapper.go`, `model.go`
+**Описание**: Маппинг моделей между слоями и описание сущностей для БД.
 
 ---
 
 ### 4. `internal/web`
 
-#### a. `handler.go`
+#### a. `game_handler.go`
 **Описание**: HTTP-обработчики для работы с играми.
 
 **Ключевые функции**:
-- `PlayGame(w http.ResponseWriter, r *http.Request)`:
-  Обрабатывает ход игрока. Проверяет завершение игры, выполняет ход и возвращает обновлённое состояние игры.
+- `PlayGame(w http.ResponseWriter, r *http.Request)` — обработка хода игрока.
+- `CreateGame(w http.ResponseWriter, r *http.Request)` — создание новой игры.
+- `Connect(w http.ResponseWriter, r *http.Request)` — подключение к игре.
+- `GetGames(w http.ResponseWriter, r *http.Request)` — список всех открытых игр.
+- `CurrentGame(w http.ResponseWriter, r *http.Request)` — текущие игры пользователя.
+- `GetEndedGames(w http.ResponseWriter, r *http.Request)` — завершённые игры пользователя.
+- `GetLeaderBoard(w http.ResponseWriter, r *http.Request)` — лидерборд.
+- `UserInfo(w http.ResponseWriter, r *http.Request)` — информация о пользователе.
 
-- `CreateGame(w http.ResponseWriter, r *http.Request)`:
-  Создаёт новую игру.
+#### b. `user_handler.go`
+**Описание**: HTTP-обработчики для регистрации, логина и работы с JWT.
 
-- `Connect(w http.ResponseWriter, r *http.Request)`:
-  Подключает второго игрока к игре.
+#### c. `user_midlware.go`
+**Описание**: JWT middleware для авторизации всех защищённых эндпоинтов.
 
-- `GetGames(w http.ResponseWriter, r *http.Request)`:
-  Возвращает список доступных игр.
+#### d. `router.go`
+**Описание**: Регистрация всех маршрутов приложения.
 
-- `CurrentGame(w http.ResponseWriter, r *http.Request)`:
-  Возвращает текущую игру для пользователя.
+#### e. `mappers.go`, `model.go`
+**Описание**: Маппинг моделей web <-> domain, DTO для API.
+
+---
+
+### 5. `internal/di/service.go`
+**Описание**: DI-контейнер и запуск HTTP-сервера через fx.
+
+---
+
+## Основные эндпоинты
+
+### Аутентификация и пользователи
+
+- `POST /register` — регистрация пользователя  
+  **body:** `{ "login": "user", "password": "pass" }`
+
+- `POST /login` — вход, получение JWT  
+  **body:** `{ "login": "user", "password": "pass" }`
+
+- `POST /refresh-access` — обновление access-токена  
+  **body:** `{ "refresh_token": "<refresh_token>" }`
+
+- `POST /refresh-refresh` — обновление refresh-токена  
+  **body:** `{ "refresh_token": "<refresh_token>" }`
+
+---
+
+### Игры
+
+- `POST /game` — создать новую игру  
+  **body:** `{ "vs_computer": true|false }`  
+  **header:** `Authorization: Bearer <access_token>`
+
+- `POST /connect/{game_id}` — подключиться к игре  
+  **header:** `Authorization: Bearer <access_token>`
+
+- `POST /game/{game_id}` — сделать ход  
+  **body:** `{ "id": "...", "field": [[...],[...],[...]] }`  
+  **header:** `Authorization: Bearer <access_token>`
+
+- `GET /games` — получить список всех игр пользователя  
+  **header:** `Authorization: Bearer <access_token>`
+
+- `GET /endedgames` — получить список завершённых игр пользователя  
+  **header:** `Authorization: Bearer <access_token>`
+
+- `GET /leaderboard?count=N` — получить топ-N игроков по соотношению побед  
+  **header:** `Authorization: Bearer <access_token>`
 
 ---
 
 ## Пример работы API
 
-### 1. Создание новой игры
+### Регистрация и вход
+
+```bash
+curl -X POST http://localhost:8080/register \
+-H "Content-Type: application/json" \
+-d '{"login": "user1", "password": "password123"}'
+
+curl -X POST http://localhost:8080/login \
+-H "Content-Type: application/json" \
+-d '{"login": "user1", "password": "password123"}'
+```
+
+### Создание новой игры
+
 ```bash
 curl -X POST http://localhost:8080/game \
--H "Cookie: user_id=9e74ffe9-c435-48c0-b922-bd80d9e368bb" \
+-H "Authorization: Bearer <access_token>" \
 -d '{"vs_computer": true}'
 ```
 
-### 2. Подключение второго игрока
+### Получение завершённых игр
+
 ```bash
-curl -X POST http://localhost:8080/connect/8248de5d-6b1c-4208-83c3-c2049557b7e5 \
--H "Cookie: user_id=4929e317-7e1e-4799-86d2-8848149ba7f5"
+curl -X GET http://localhost:8080/endedgames \
+-H "Authorization: Bearer <access_token>"
 ```
 
-### 3. Выполнение хода
+### Получение лидерборда
+
 ```bash
-curl -X POST http://localhost:8080/game/d25c5788-547d-492c-94ad-d4c06b07ddc5 \
--H "Cookie: user_id=9e74ffe9-c435-48c0-b922-bd80d9e368bb" \
--H "Content-Type: application/json" \
--d '{"id":"d25c5788-547d-492c-94ad-d4c06b07ddc5", "field":[[2,1,0],[2,2,1],[1,0,0]]}'
+curl -X GET "http://localhost:8080/leaderboard?count=10" \
+-H "Authorization: Bearer <access_token>"
 ```
+
+---
 
 ## Настройка базы данных
-### Для подключения к базе данных используйте переменную окружения DB_URL. Пример:
+
+Установите переменную окружения:
 
 ```bash
 export DB_URL=postgres://postgres:password@localhost:5432/TicTacToe
 ```
 
+---
+
 ## Запуск проекта
 
-### 1. Установите зависимости:
-```
-go mod tidy
-```
-
-### 2. Запустите приложение:
 ```bash
+cd src
+go mod tidy
 go run cmd/app/main.go
 ```
 
-### 3. API будет доступно по адресу http://localhost:8080.
+API будет доступно по адресу http://localhost:8080
+
+---
+
+## Примечания
+
+- Для всех защищённых эндпоинтов требуется JWT в заголовке `Authorization: Bearer <access_token>`.
+- Все ответы и ошибки возвращаются в формате JSON.
